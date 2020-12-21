@@ -6,3 +6,6 @@ train.csv包含两列，“emotion”和“pixels”。 “emotion”列包含�
 训练集包含28709。测试集包含7178。
 
 train.py中有模仿AlexNet手动搭建的CNN，根据图片大小对参数做了一些调整，并添加了dropout解决一些过拟合的问题。Myresnet.py中有自己搭建的resnet18。
+
+数据train.csv test.csv：链接：https://pan.baidu.com/s/17e1NrKuIxVwf57y7cMgMyg  提取码：1234 
+

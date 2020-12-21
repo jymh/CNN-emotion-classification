@@ -7,6 +7,7 @@ from train import pre_process
 from train import Net
 from train import device
 import numpy as np
+from train import emotion
 
 def compute_saliency_maps(X, y, model):
     model.eval()
@@ -23,7 +24,8 @@ def compute_saliency_maps(X, y, model):
 
     return saliency.squeeze()
 
-def show_saliency_maps(X, y, model):
+def show_saliency_maps(X, y, model, name):
+    path = 'saliency maps pictures/' + str(name) + '.png'
     saliency = compute_saliency_maps(X, y, model)
 
     N = X.shape[0]
@@ -42,22 +44,24 @@ def show_saliency_maps(X, y, model):
         plt.axis('off')
         plt.gcf().set_size_inches(12, 5)
 
+    #plt.savefig(path)
     plt.show()
 
-def select_monotype(datax, datay, type):
+def select_monotype(datax, datay, type, num):
     index = []
     for i in range(len(datax)):
         if datay[i] == type:
             index.append(i)
-        if len(index) == 4:
+        if len(index) == num:
             return index
 
 
 X, y = pre_process("train.json", True)
-index = select_monotype(X, y, 3)
-X_todraw, y_todraw = X.index_select(0, torch.tensor(index)).to(device), y.index_select(0, torch.tensor(index))
-y_todraw = torch.LongTensor(y_todraw).to(device)
-#print(y_todraw.view(-1,1))
 
-model = torch.load("resnet_model.pth")
-show_saliency_maps(X_todraw, y_todraw, model)
+model = torch.load("models/final_model.pth")
+for i in range(7):
+    index = select_monotype(X, y, i, 4)
+    X_todraw, y_todraw = X.index_select(0, torch.tensor(index)).to(device), y.index_select(0, torch.tensor(index))
+    y_todraw = torch.LongTensor(y_todraw).to(device)
+    # print(y_todraw.view(-1,1))
+    show_saliency_maps(X_todraw, y_todraw, model, emotion[i])

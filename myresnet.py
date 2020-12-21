@@ -48,7 +48,7 @@ class ResModel(nn.Module):
         self.layer2 = self.make_layer(resBlock, 128, 2, stride=2)
         self.layer3 = self.make_layer(resBlock, 256, 2, stride=2)
         self.layer4 = self.make_layer(resBlock, 512, 2, stride=2)
-        self.dropout = nn.Dropout(0.5)
+        self.dropout = nn.Dropout(0.2)
         self.fc = nn.Linear(512, n_class)
 
 
@@ -67,7 +67,7 @@ class ResModel(nn.Module):
         out = self.layer3(out)
         out = self.layer4(out)
         out = F.avg_pool2d(out, 4)
-        #out = self.dropout(out)
+        out = self.dropout(out)
         out = out.view(out.size(0), -1)
         out = self.fc(out)
         return out

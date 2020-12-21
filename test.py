@@ -9,11 +9,12 @@ from train import device
 import numpy as np
 import pandas as pd
 
+
 def write_result(prediction):
     id = [i+1 for i in range(len(prediction))]
     pred_dict = {"ID": id, "emotion": prediction}
     res = pd.DataFrame(pred_dict)
-    res.to_csv(r"simplenet_res2.csv", index=None)
+    res.to_csv(r"prediction_results/res.csv", index=None)
     print("Success")
 
 
@@ -36,7 +37,7 @@ def predict(model, test_dataloader):
 
 test_x = pre_process("test.json",False)
 
-model = torch.load("my_model2.pth")
+model = torch.load("models/final_model.pth")
 
 test_dataset = torch.utils.data.TensorDataset(test_x)
 test_loader = torch.utils.data.DataLoader(test_dataset,

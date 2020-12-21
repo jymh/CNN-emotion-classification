@@ -7,12 +7,15 @@ import torch.optim as optim
 from torchvision import datasets, transforms, models
 from torch.utils.data.dataset import Dataset
 import json
-from csv_to_json import train_mean, train_std, test_mean, test_std
-from myresnet import ResModel
-from torchresnet import torchResnet18
+#from myresnet import ResModel
+
+
 
 device = torch.device("cuda")
 batch_size = 64
+emotion = ['angry', 'disgusted', 'terrified', 'happy', 'sad', 'surprised', 'neutral']
+training_acc_lst = []
+vali_acc_lst = []
 
 def pre_process(path, train):
     with open(path, "r") as fp:
@@ -92,6 +95,7 @@ class Net(nn.Module):
         x = self.fully_connect(x)
         return x
 
+'''
 def myResNet(channel):
     backbone = models.resnet50(pretrained=False)
     backbone.conv1 = nn.Conv2d(1, 64,
@@ -101,6 +105,7 @@ def myResNet(channel):
                                bias=False)
 
     return backbone
+'''
 
 def train(model, device, train_loader, optimizer, epoch):
     model.train()
@@ -126,6 +131,7 @@ def train(model, device, train_loader, optimizer, epoch):
 
     train_loss /= len(train_loader.dataset)
     train_acc = correct / len(train_loader.dataset) * 100
+    training_acc_lst.append(train_acc)
     print("Train Epoch: {}, Train_loss: {}, Train_accuracy: {}".format(epoch, train_loss, train_acc))
 
 def validation(model, device, vali_loader):
@@ -143,6 +149,7 @@ def validation(model, device, vali_loader):
 
     total_loss /= len(vali_loader.dataset)
     acc = correct / len(vali_loader.dataset)*100
+    vali_acc_lst.append(acc)
     print("Test loss: {}, Accuracy: {}".format(total_loss, acc))
 
 
@@ -164,7 +171,7 @@ if __name__ == "__main__":
     vali_dataset = torch.utils.data.TensorDataset(vali_x, vali_y)
     #print(train_dataset[0][0].size(), train_dataset[0][1].size())
     train_dataloader = torch.utils.data.DataLoader(dataset=train_dataset,
-                                                   batch_size=batch_size,
+                                                   batch_size=batch_size, shuffle=True,
                                                    num_workers=1, pin_memory=True)
     vali_dataloader = torch.utils.data.DataLoader(dataset=vali_dataset,
                                                   batch_size=batch_size,
@@ -176,15 +183,15 @@ if __name__ == "__main__":
     lr = 0.01
     momentum = 0.5
     decay = 1e-6
-    #model = Net().to(device)
+    model = Net().to(device)
     #model = ResModel(7).to(device)
-    model = torchResnet18(7, 0.2)
     optimizer1 = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=decay)
     optimizer2 = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum, weight_decay=decay)
 
-    num_epochs = 60
+    num_epochs = 70
     for epoch in range(num_epochs):
         train(model, device, train_dataloader, optimizer1, epoch)
         validation(model, device, vali_dataloader)
 
-    torch.save(model,"my_model2.pth")
+    torch.save(model,"model.pth")
+    print(training_acc_lst, vali_acc_lst)
